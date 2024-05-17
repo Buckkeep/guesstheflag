@@ -80,17 +80,7 @@ struct ContentView: View {
                 .clipShape(.rect(cornerRadius: 20))
 
                 Spacer()
-                
-                Button("Press Me") {
-                    withAnimation {
-                        animationAmount += 360
-                    }
-                }
-                .rotation3DEffect(
-                    .degrees(animationAmount),
-                                          axis: (x: 0.0, y: 1.0, z: 0.0)
-                )
-                
+            
                 Spacer()
 
                 Text("Score: \(currentScore) / \(questionsAsked)")
