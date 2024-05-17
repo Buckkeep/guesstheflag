@@ -7,14 +7,33 @@
 
 import SwiftUI
 
+struct FlagImage: View {
+    var image: String
+    
+    var body: some View {
+        Image(image)
+            .clipShape(.capsule)
+            .shadow(radius: 5)
+    }
+}
+
 struct ContentView: View {
     @State private var countries = ["Estonia", "France", "Germany", "Ireland", "Italy", "Nigeria", "Poland", "Spain", "UK", "Ukraine", "US"].shuffled()
     @State private var correctAnswer = Int.random(in: 0...2)
 
     @State private var showingScore = false
     @State private var scoreTitle = ""
+    
+    @State private var currentScore = 0
+    @State private var questionsAsked = 0
+    
+    @State private var animationAmount = 0.0
+    
+    @State var isTapped = -1
+    
 
     var body: some View {
+        
         ZStack {
             RadialGradient(stops: [
                 .init(color: Color(red: 0.1, green: 0.2, blue: 0.45), location: 0.3),
@@ -34,19 +53,25 @@ struct ContentView: View {
                         Text("Tap the flag of")
                             .foregroundStyle(.secondary)
                             .font(.subheadline.weight(.heavy))
-
+                        
                         Text(countries[correctAnswer])
                             .font(.largeTitle.weight(.semibold))
-                    }
-
-                    ForEach(0..<3) { number in
-                        Button {
-                            flagTapped(number)
-                        } label: {
-                            Image(countries[number])
-                                .clipShape(.capsule)
-                                .shadow(radius: 5)
+                        
+                        
+                        ForEach(0..<3) { number in
+                            Button {
+                                flagTapped(number);
+                            } label: {
+                                FlagImage(image: countries[number])
+                            }
+                            .rotation3DEffect(
+                                .degrees( (isTapped == number) ? 360 : 0.0),
+                                axis: (x: 0.0, y: 1.0, z: 0.0)
+                            )
+                            .animation(.default, value: isTapped)
                         }
+
+                        
                     }
                 }
                 .frame(maxWidth: .infinity)
@@ -55,9 +80,20 @@ struct ContentView: View {
                 .clipShape(.rect(cornerRadius: 20))
 
                 Spacer()
+                
+                Button("Press Me") {
+                    withAnimation {
+                        animationAmount += 360
+                    }
+                }
+                .rotation3DEffect(
+                    .degrees(animationAmount),
+                                          axis: (x: 0.0, y: 1.0, z: 0.0)
+                )
+                
                 Spacer()
 
-                Text("Score: ???")
+                Text("Score: \(currentScore) / \(questionsAsked)")
                     .foregroundStyle(.white)
                     .font(.title.bold())
 
@@ -68,23 +104,29 @@ struct ContentView: View {
         .alert(scoreTitle, isPresented: $showingScore) {
             Button("Continue", action: askQuestion)
         } message: {
-            Text("Your score is ???")
+            Text("Your score is \(currentScore) / \(questionsAsked)")
         }
     }
 
     func flagTapped(_ number: Int) {
+        
+        isTapped = number
+        
         if number == correctAnswer {
             scoreTitle = "Correct"
+            currentScore += 1
         } else {
             scoreTitle = "Wrong"
         }
 
         showingScore = true
+        questionsAsked += 1
     }
 
     func askQuestion() {
         countries.shuffle()
         correctAnswer = Int.random(in: 0...2)
+        isTapped = -1
     }
 }
 
