@@ -69,6 +69,7 @@ struct ContentView: View {
                                 axis: (x: 0.0, y: 1.0, z: 0.0)
                             )
                             .opacity( (isTapped == number || isTapped == -1) ? 1.0 : 0.5)
+                            .scaleEffect( (isTapped == number || isTapped == -1) ? 1.0 : 0.5)
                             .animation(.default, value: isTapped)
                         }
 
